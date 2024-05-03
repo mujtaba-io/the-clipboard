@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIN '{{ pin }}' of Clipboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #191724;
+      color: #DAD8D4;
+    }
+    .container {
+      max-width: 100%;
+      margin: 32px auto;
+      background-color: transparent;
+      padding: 16px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: bold;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 16px;
+      background-color: #232136;
+      color: white;
+      border: 1px solid #524B49;
+      border-radius: 32px;
+      box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #6E6A68;
+    }
+    .error-message {
+      color: #FF5555;
+      margin-top: 5px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .info-box {
+        background-color: #232136;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+        border: 1px solid #524B49;
+    }
+
+    .hyper-link {
+        color: #eb6f92;
+    }
+
+    .hyper-link:hover {
+        text-decoration: underline;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .column {
+      flex: 48%;
+    }
+
+    @media screen and (max-width: 600px) {
+      .column {
+        flex: 100%;
+      }
+    }
+
+    .card {
+      background-color: #232136;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid #524B49;
+      margin: 2px 2px 0 2px;
+      aspect-ratio: 1;
+
+      position: relative; /* For the trash icon to appear properly */
+    }
+
+    .card-hoverable {
+      transition: transform 0.2s;
+    }
+
+    .card-hoverable:hover {
+      transform: scale(1.01);
+      cursor: pointer;
+    }
+
+    .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            max-width: 100%;
+            margin: 32px auto;
+            padding: 16px;
+            background-color: transparent;
+        }
+
+    .button {
+      background-color: #eb6f92;
+      color: white;
+      border: none;
+      border-radius: 32px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      opacity: 0.7;
+    }
+
+    .text-area {
+        width: 100%;
+        height: 97%;
+        background-color: #232136;
+        color: white;
+        border: 1px solid #524B49;
+        border-radius: 10px;
+        padding: 16px;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: #524B49 transparent;
+        resize: none;
+
+    }
+
+    .modal-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    width: 256px;
+    height: 128px;
+}
+
+.modal {
+    background-color: #232136;
+    color: white;
+    border-radius: 8px;
+    border: 1px solid #524B49;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.shine {
+  /* add shine animation by changing coor to white and then back to original color*/
+  animation: shine 1s;
+}
+
+@keyframes shine {
+  0% {
+    background-color: #232136;
+  }
+  50% {
+    background-color: #ffffffaa;
+  }
+  100% {
+    background-color: #232136;
+  }
+}
+
+
+form {
+    display: contents;
+}
+
+
+  </style>
+</head>
+<body>
+
+    <div class="container" style="max-width: 90%;">
+        <div class="row">
+            <div style="font-size: 24px; cursor: pointer;" onclick="window.open('/', '_self')">Clipboard</div>
+            <button class="button" onclick="window.open('https://patreon.com/mujtaba_io', '_blank')" style="background-color: #f93">
+              <b>Donate</b>
+            </button>
+        </div>
+    </div>
+
+    <span class="error-message"></span>
+    <script>
+      const error = new URLSearchParams(window.location.search).get('error');
+      if (error) {
+        document.querySelector('.error-message').innerText = error;
+      }
+    </script>
+
+<div class="grid-container" style="max-width: 90%;">
+
+
+      <!-- add new item; triggers modal-container to open via javascript -->
+      <div class="card card-hoverable" id="open-modal-button">
+        <div class="center">
+            <div style="height: 70px;"></div>
+            <i class="fa fa-plus" aria-hidden="true" style="font-size: 40px;"></i>
+        </div>
+    </div>
+
+<!-- card items for files and texts -->
+  {% for item in clipboard_data %}
+    {% if 'file' in item %}
+
+    <div class="card card-hoverable center" onclick="window.open('/files/{{ pin }}/{{ item.file }}', '_blank');">
+      {{ item.file }} <br><br><br>
+        <i class="fa fa-file" aria-hidden="true" style="font-size: 48px; color: #DAD8D4;"></i>
+
+        <div onclick="deleteIndexItem({{ loop.index0 }})" style="position: absolute; top: -16px; left: -8px; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; background-color: #944; border-radius: 50%; padding: 4px;">
+            <i class="fa fa-trash" aria-hidden="true" style="font-size: 16px; color: #DAD8D4;"></i>
+        </div>
+    </div>
+
+    {% elif 'text' in item %}
+
+    <div class="card card-hoverable">
+      <form name="text-{{ loop.index0 }}" action="/texts/{{ pin }}/{{ loop.index0 }}" method="post">
+      <textarea name="text" class="text-area">{{ item.text }}</textarea>
+      <div onclick="deleteIndexItem({{ loop.index0 }})" style="position: absolute; top: -16px; left: -8px; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; background-color: #944; border-radius: 50%; padding: 4px;">
+          <i class="fa fa-trash" aria-hidden="true" style="font-size: 16px; color: #DAD8D4;"></i>
+      </div>
+      <div onclick="submitTextForm{{ loop.index0 }}()" style="position: absolute; bottom: -16px; right: -8px; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; background-color: #494; border-radius: 50%; padding: 4px;">
+        <i class="fa fa-save" aria-hidden="true" style="font-size: 16px; color: #DAD8D4;"></i>
+      </div>
+      </form>
+    </div>
+
+    <script> // script local to each text card in loop
+      function submitTextForm{{ loop.index0 }}() {
+        if (document.forms['text-{{ loop.index0 }}'].text.value.length > 64 * 1024){
+          alert('Text size is more than 64 KB. Truncating to 65,536 characters (64 KB).');
+          document.forms['text-{{ loop.index0 }}'].text.value = document.forms['text-{{ loop.index0 }}'].text.value.substring(0, 64 * 1024);
+        }
+        document.forms['text-{{ loop.index0 }}'].submit();
+      }
+    </script>
+
+    {% endif %}
+  {% endfor %}
+
+    <!-- Modal container (hidden by default) -->
+<div id="modal-container" class="modal-container">
+  <div class="modal">
+      
+    <span class="center">Add new stuff!</span><br>
+      <form name="file-upload" action="/upload/{{ pin }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" id="file" style="display: none;">
+      </form>
+      <button class="button" id="upload-file-button">
+        <i class="fa fa-upload" aria-hidden="true"></i>
+        Upload File
+      </button>
+     <br>
+        <button class="button" id="paste-text-button" style="background-color: #494;">
+            <i class="fa fa-paste" aria-hidden="true"></i>
+          Paste Text
+        </button>
+    
+  </div>
+</div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+    const modalContainer = document.getElementById('modal-container');
+    const openModalButton = document.getElementById('open-modal-button');
+    const uploadFileButton = document.getElementById('upload-file-button');
+    const pasteTextButton = document.getElementById('paste-text-button');
+
+    // Function to open the modal
+    function openModal() {
+        modalContainer.style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        modalContainer.style.display = 'none';
+    }
+
+    // Event listener for the open modal button
+    openModalButton.addEventListener('click', openModal);
+
+    // Event listeners for the OK and Cancel buttons
+    uploadFileButton.addEventListener('click', function() {
+      
+        closeModal();
+        var fileInput = document.getElementById('file');
+        fileInput.click();
+        fileInput.addEventListener('change', function() {
+            const file = fileInput.files[0];
+            if (file){
+              if (file.size > 32 * 1024 * 1024) {
+                // add error message as url param
+                window.open('/clipboard/{{ pin }}?error=File size is more than 32 MB', '_self');
+              } else {
+                document.forms['file-upload'].submit(); // submit the file-upload form
+              }
+            }
+        });
+    });
+
+    pasteTextButton.addEventListener('click', function() {
+        closeModal();
+        // create a new card with the textarea and form
+        const gridContainer = document.querySelector('.grid-container');
+        gridContainer.innerHTML += `
+    <div name="NEW-card" class="card card-hoverable">
+      <form name="text-NEW" action="/texts/{{ pin }}/-1" method="post">
+      <textarea name="text" class="text-area"></textarea>
+      <div style="position: absolute; top: -16px; left: -8px; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; background-color: #944; border-radius: 50%; padding: 4px;">
+          <i class="fa fa-trash" aria-hidden="true" style="font-size: 16px; color: #DAD8D4;"></i>
+      </div>
+      <div onclick="submitTextFormNEW()" style="position: absolute; bottom: -16px; right: -8px; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; background-color: #494; border-radius: 50%; padding: 4px;">
+        <i class="fa fa-save" aria-hidden="true" style="font-size: 16px; color: #DAD8D4;"></i>
+      </div>
+      </form>
+    </div>
+        `;
+
+        const newCard = document.querySelector('[name="NEW-card"]');
+
+        newCard.querySelector('textarea').focus();
+        // also add shine effect
+        newCard.classList.add('shine');
+        // also paste current clipboard text
+        navigator.clipboard.readText().then(text => {
+          if (text.length > 64 * 1024){
+            alert('Text size is more than 64 KB. Truncating to 65,536 characters (64 KB).');
+            newCard.querySelector('textarea').value = text.substring(0, 64 * 1024);
+          } else {
+            newCard.querySelector('textarea').value = text;
+          }
+            // automatically submit the form initially
+            document.forms['text-NEW'].submit();
+          
+        });
+
+
+    });
+
+});
+
+
+// in-case text paste card is created
+function submitTextFormNEW() {
+  document.forms['text-NEW'].submit();
+}
+
+// to delete an item at index from server
+function deleteIndexItem(index) {
+        window.open('/delete/{{ pin }}/' + index, '_self');
+      }
+
+    </script>
+
+
+
+</div>
+
+<div style="text-align: center;">
+    Made with ❤️ by <a class="hyper-link" href="https://gameidea.org/about/" target="_blank">Mujtaba</a>
+</div>
+
+
+</body>
+</html>

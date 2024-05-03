@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Clipboard</title>
+    <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #191724;
+      color: #DAD8D4;
+    }
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      background-color: transparent;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: bold;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 16px;
+      background-color: #232136;
+      color: white;
+      border: 1px solid #524B49;
+      border-radius: 32px;
+      box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #6E6A68;
+    }
+    .error-message {
+      color: #FF5555;
+      margin-top: 5px;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #eb6f92;
+      color: white;
+      border: none;
+      border-radius: 32px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      opacity: 0.7;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .info-box {
+        background-color: #232136;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+        border: 1px solid #524B49;
+    }
+
+    .hyper-link {
+        color: #eb6f92;
+    }
+
+    .hyper-link:hover {
+        text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+<div class="container center">
+    <br><br>
+    <div class="center" style="font-size: 32px;">The Clipboard</div>
+    <div class="center" style="text-align: center; font-size: 16px;">
+        create or enter your clipboard's pin
+    </div>
+
+
+    <br><span class="error-message"></span><br>
+    <script>
+      const error = new URLSearchParams(window.location.search).get('error');
+      if (error) {
+        document.querySelector('.error-message').innerText = error;
+      }
+    </script>
+
+
+    <form id="pin_form" action="#" method="post">
+        <div class="form-group">
+            <input type="text" id="username" name="pin" placeholder="PIN" required minlength="4" maxlength="32">
+        </div>
+
+        <button type="submit" class="submit-btn">Enter</button>
+    </form>
+
+    <br>
+    <div class="info-box">
+        <div style="text-align: center;">
+            <b>Clipboard</b> is a handy tool that lets you save text, files, and links for later use across devices!
+        </div>
+    </div>
+
+    <br>
+    <div style="text-align: center;">
+        Made with ❤️ by <a class="hyper-link" href="https://gameidea.org/about/" target="_blank">Mujtaba</a>
+        <br><br>
+        <span style="font-size: 12px;">By using this software, <b>you agree</b> that this software is provided 'as-is'. There is no warranty and author is not liable for any damage.</span>
+    </div>
+</div>
+
+
+</body>
+</html>
