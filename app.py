@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 import os
 from werkzeug.utils import secure_filename
+import json
 
 UPLOAD_FOLDER = './files'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', '*'}
@@ -10,6 +11,8 @@ app.config['SECRET_KEY'] = 'myfuckingsecurekeyhehe'  # Change this to a secure s
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
+data = {}
+""" SAMPLE DATA 
 data = {
     'PIN': [
         {'file': 'url'},
@@ -17,6 +20,7 @@ data = {
         {'file': 'irl'}, # filename will be url's last name with extension
     ]
 }
+"""
 
 
 
@@ -147,6 +151,26 @@ def allowed_file(filename):
 @app.errorhandler(404)
 def page_not_found(e):
     return redirect(url_for('index'))
+
+
+@app.route('/systemstatus', methods=['GET'])
+def system_status():
+    # all stats here
+    total_pins = len(data)
+    total_files = 0
+    total_text = 0
+    for pin in data:
+        for entry in data[pin]:
+            if 'file' in entry:
+                total_files += 1
+            elif 'text' in entry:
+                total_text += 1
+    return '''
+    <h1>System Status</h1>
+    <p>Total Pins: {}</p>
+    <p>Total Files: {}</p>
+    <p>Total Text: {}</p>
+    '''.format(total_pins, total_files, total_text)
 
 
 
