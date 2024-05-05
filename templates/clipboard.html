@@ -218,7 +218,7 @@ form {
   {% for item in clipboard_data %}
     {% if 'file' in item %}
 
-    <div class="card card-hoverable center" onclick="window.open('/files/{{ pin }}/{{ item.file }}', '_blank');">
+    <div class="card card-hoverable center" onclick="window.open('/files/{{ pin }}/{{ item.file }}', '_self');">
       {{ item.file }} <br><br><br>
         <i class="fa fa-file" aria-hidden="true" style="font-size: 48px; color: #DAD8D4;"></i>
 
@@ -363,6 +363,7 @@ function submitTextFormNEW() {
 
 // to delete an item at index from server
 function deleteIndexItem(index) {
+        event.stopPropagation(); // to prevent the click event from bubbling up to the card to both download and delete at same time
         window.open('/delete/{{ pin }}/' + index, '_self');
       }
 
