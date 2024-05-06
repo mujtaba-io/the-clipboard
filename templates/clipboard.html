@@ -135,7 +135,7 @@
 
     }
 
-    .modal-container {
+  .modal-container {
     display: none;
     position: fixed;
     top: 50%;
@@ -181,6 +181,20 @@ form {
     display: contents;
 }
 
+.center-along-vertical {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+.text-wrap {
+  overflow: hidden; /* Hide overflowing content */
+  word-wrap: break-word; /* Wrap long words onto the next line */
+  white-space: normal; /* Ensure whitespace behaves normally */
+}
+
+
 
   </style>
 </head>
@@ -207,9 +221,8 @@ form {
 
 
       <!-- add new item; triggers modal-container to open via javascript -->
-      <div class="card card-hoverable" id="open-modal-button">
+      <div class="card card-hoverable center-along-vertical" id="open-modal-button">
         <div class="center">
-            <div style="height: 70px;"></div>
             <i class="fa fa-plus" aria-hidden="true" style="font-size: 40px;"></i>
         </div>
     </div>
@@ -219,7 +232,7 @@ form {
     {% if 'file' in item %}
 
     <div class="card card-hoverable center" onclick="window.open('/files/{{ pin }}/{{ item.file }}', '_self');">
-      {{ item.file }} <br><br><br>
+      <span class="text-wrap">{{ item.file }}</span> <br><br><br>
         <i class="fa fa-file" aria-hidden="true" style="font-size: 48px; color: #DAD8D4;"></i>
 
         <div onclick="deleteIndexItem({{ loop.index0 }})" style="position: absolute; top: -16px; left: -8px; display: flex; justify-content: center; align-items: center; width: 24px; height: 24px; background-color: #944; border-radius: 50%; padding: 4px;">
@@ -276,7 +289,7 @@ form {
 </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
     const modalContainer = document.getElementById('modal-container');
     const openModalButton = document.getElementById('open-modal-button');
     const uploadFileButton = document.getElementById('upload-file-button');
@@ -284,11 +297,13 @@ form {
 
     // Function to open the modal
     function openModal() {
+        event.stopPropagation(); // solves bug of closing modal instantly after opening
         modalContainer.style.display = 'block';
     }
 
     // Function to close the modal
     function closeModal() {
+        event.stopPropagation();
         modalContainer.style.display = 'none';
     }
 
@@ -351,6 +366,16 @@ form {
         });
 
 
+    });
+
+
+    document.addEventListener('click', function(event) {
+      // if click target is not model, return
+      if (modalContainer.style.display === 'block') {
+        if (!modalContainer.contains(event.target)) {
+          closeModal();
+        }
+      }
     });
 
 });

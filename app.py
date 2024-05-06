@@ -11,10 +11,15 @@ app.config['SECRET_KEY'] = 'myfuckingsecurekeyhehe'  # Change this to a secure s
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
+# relaxing security for more useability
+from flask_cors import CORS
+CORS(app, resources={r"/*": {"origins": "*"}}) # allows requests from all origins
+
+
 data = {}
 """ SAMPLE DATA 
 data = {
-    'PIN': [
+    'pin': [
         {'file': 'url'},
         {'text': 'lorem...'},
         {'file': 'irl'}, # filename will be url's last name with extension
@@ -36,7 +41,7 @@ def index():
         return render_template('index.html')
 
     elif request.method == 'POST':
-        pin = request.form['pin']
+        pin = request.form['pin'].lower() # Aysh vs aysh
 
         if len(pin) > MAX_PIN_SIZE:
             return redirect(url_for('index', error='PIN size too large'))  
@@ -49,6 +54,7 @@ def index():
 
 @app.route('/clipboard/<pin>', methods=['GET', 'POST'])
 def clipboard(pin):
+    pin = pin.lower()
     if request.method == 'GET':
         if pin not in data:
             return redirect(url_for('index', error='Invalid PIN')) # redirect to index page
@@ -58,6 +64,7 @@ def clipboard(pin):
 
 @app.route('/upload/<pin>', methods=['POST'])
 def upload(pin):
+    pin = pin.lower()
     if pin not in data:
         return redirect(url_for('index'))
     # check if the post request has the file part
@@ -102,6 +109,7 @@ def upload(pin):
 
 @app.route('/files/<pin>/<filename>', methods=['GET'])
 def download(pin, filename):
+    pin = pin.lower()
     if pin not in data:
         return redirect(url_for('index', error='Invalid PIN'))
     upload_dir = ensure_upload_dir_exists(pin)
@@ -110,6 +118,7 @@ def download(pin, filename):
 
 @app.route('/texts/<pin>/<index>', methods=['POST'])
 def update_text(pin, index):
+    pin = pin.lower()
     if pin not in data:
         return redirect(url_for('index', error='Invalid PIN'))
     index = int(index)
@@ -125,6 +134,7 @@ def update_text(pin, index):
 
 @app.route('/delete/<pin>/<index>', methods=['GET'])
 def delete(pin, index):
+    pin = pin.lower()
     if pin not in data:
         return redirect(url_for('index', error='Invalid PIN'))
     index = int(index)
@@ -152,6 +162,8 @@ def allowed_file(filename):
 def page_not_found(e):
     return redirect(url_for('index'))
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 @app.route('/systemstatus', methods=['GET'])
 def system_status():
@@ -172,6 +184,10 @@ def system_status():
     <p>Total Text: {}</p>
     '''.format(total_pins, total_files, total_text)
 
+# useful during updates when migration is needed
+@app.route('/alldata', methods=['GET'])
+def all_data():
+    return json.dumps(data, indent=4)
 
 
 if __name__ == '__main__':
