@@ -1,4 +1,11 @@
+// MAKESURE LINE: 218 REPLACE
+
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:pixelarticons/pixelarticons.dart';
+
+import 'clipboard.dart';
+import 'backyard.dart';
 
 void main() {
   runApp(ClipboardApp());
@@ -33,13 +40,8 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
   final TextEditingController _pinController = TextEditingController();
   String _errorMessage = '';
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _errorMessage = ''; // Reset error message on valid input
-      });
-    }
-  }
+  bool _isPinSecure = false;
+  final TextEditingController _passwordController = TextEditingController();
 
   String? _validatePin(String? value) {
     if (value == null || value.isEmpty) {
@@ -67,13 +69,19 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                const Icon(
+                  Pixel.heart,
+                  size: 100,
+                  color: Colors.deepPurple,
+                ),
+
                 const Text(
                   'The Clipboard',
                   style: TextStyle(fontSize: 32),
                 ),
-                const SizedBox(height: 10),
+                //const SizedBox(height: 10),
                 const Text(
-                  'Create or enter your clipboard\'s pin',
+                  'create or enter your clipboard\'s pin',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16),
                 ),
@@ -114,11 +122,39 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                             ),
                           ),
                         ),
-                      if (_errorMessage.isEmpty) const SizedBox(height: 16),
+                      // if (_errorMessage.isEmpty) const SizedBox(height: 16),
+
+// cb new -------------------------
+                      // add a chackbox 'secure my pin' and pressing it creates
+                      // a dialogbox which asks password
+
+                      CheckboxListTile(
+                        hoverColor: Colors.white54,
+                        title: const Text(
+                            'Secure my pin with password (optional)',
+                            style:
+                                TextStyle(color: Colors.white60, fontSize: 12)),
+                        value: _isPinSecure,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _isPinSecure = value!;
+                          });
+                        },
+                      ),
+
+                      // --------------------------------------------- CB new
+
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _submitForm,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _errorMessage = '';
+                              });
+                              submitPin();
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFeb6f92),
                             padding: const EdgeInsets.all(16),
@@ -166,5 +202,44 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
         ),
       ),
     );
+  }
+
+  // make server post request
+  void submitPin() async {
+    try {
+      Map<String, dynamic> data = {
+        'pin': _pinController.text,
+        // TODO: CURRENTLY NO PASSWORD SUPPORT UNTIL BASE SYSTEM DONE
+        /*'password': _passwordController.text,
+        'is_secure': _isPinSecure ? true : false,*/
+      };
+      /*Map<String, dynamic> response = await fetchData(
+        endpoint: makeUrl('api'), // domain.com/api
+        data: data,
+      );*/
+      // temporrily make a dummy response that returns PIN corrtly
+      Map<String, dynamic> response = {'pin': _pinController.text}; // TMP ---
+
+      print(response);
+
+      // if 'pin' is in response, navigate to Clipboard() screen
+      if (response.containsKey('pin')) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Clipboard(
+              pin: response['pin'],
+            ),
+          ),
+        );
+      } else {
+        // show error message
+        setState(() {
+          _errorMessage = response['error'];
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

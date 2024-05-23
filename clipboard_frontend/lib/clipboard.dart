@@ -1,35 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pixelarticons/pixelarticons.dart';
 
-void main() {
-  runApp(ClipboardApp());
-}
-
-class ClipboardApp extends StatelessWidget {
+class Clipboard extends StatefulWidget {
+  String pin;
+  Clipboard({required this.pin});
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Clipboard",
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Color(0xFF191724),
-        scaffoldBackgroundColor: Color(0xFF191724),
-        fontFamily: 'Segoe UI',
-        textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Color(0xFFDAD8D4)),
-        ),
-      ),
-      home: ClipboardHomePage(),
-    );
-  }
+  _ClipboardState createState() => _ClipboardState();
 }
 
-class ClipboardHomePage extends StatefulWidget {
-  @override
-  _ClipboardHomePageState createState() => _ClipboardHomePageState();
-}
-
-class _ClipboardHomePageState extends State<ClipboardHomePage> {
+class _ClipboardState extends State<Clipboard> {
   final TextEditingController _pinController = TextEditingController();
   String _errorMessage = '';
   bool _showModal = false;
@@ -65,13 +45,14 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Tooltip(
                     message: 'Click to go back to home page',
                     child: GestureDetector(
                       onTap: () {
                         // Navigate to home
+                        Navigator.pop(context);
                       },
                       child: Text(
                         'Clipboard',
@@ -81,13 +62,16 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                   ),
 
 // print abcd as a very small text
+                  Spacer(),
                   Text(
-                    '1234',
+                    widget.pin, // display pin here
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.white38,
                     ),
                   ),
+
+                  Spacer(),
 
                   Tooltip(
                     message: 'Helps keep the site running',
@@ -107,6 +91,15 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
+                  ),
+                  FloatingActionButton(
+                    tooltip: 'More options',
+                    mini: true,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shape: CircleBorder(),
+                    onPressed: () {},
+                    child: Icon(Pixel.morevertical),
                   ),
                 ],
               ),
