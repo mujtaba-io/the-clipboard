@@ -7,6 +7,8 @@ import 'package:pixelarticons/pixelarticons.dart';
 import 'clipboard.dart';
 import 'backyard.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 void main() {
   runApp(ClipboardApp());
 }
@@ -75,15 +77,23 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                   color: Colors.deepPurple,
                 ),
 
-                const Text(
+                Text(
                   'The Clipboard',
-                  style: TextStyle(fontSize: 32),
+                  style: GoogleFonts.redHatMono(
+                    fontSize: 32,
+                  ),
                 ),
                 //const SizedBox(height: 10),
                 const Text(
-                  'create or enter your clipboard\'s pin',
+                  'Move text or files between devices!',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16),
+                ),
+
+                const Divider(
+                  color: Color(0xFF524B49),
+                  thickness: 1,
+                  height: 24,
                 ),
                 const SizedBox(height: 24),
                 Form(
@@ -101,7 +111,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                           decoration: const InputDecoration(
                             errorStyle: TextStyle(
                                 height: 0), // to disable default error message
-                            hintText: 'PIN',
+                            hintText: 'Create or use existing PIN',
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.all(16),
                             hintStyle: TextStyle(color: Colors.white54),
@@ -122,13 +132,13 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                             ),
                           ),
                         ),
-                      // if (_errorMessage.isEmpty) const SizedBox(height: 16),
+                      if (_errorMessage.isEmpty) const SizedBox(height: 16),
 
 // cb new -------------------------
                       // add a chackbox 'secure my pin' and pressing it creates
                       // a dialogbox which asks password
 
-                      CheckboxListTile(
+                      /*CheckboxListTile(
                         hoverColor: Colors.white54,
                         title: const Text(
                             'Secure my pin with password (optional)',
@@ -140,7 +150,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                             _isPinSecure = value!;
                           });
                         },
-                      ),
+                      ),*/
 
                       // --------------------------------------------- CB new
 
@@ -172,6 +182,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                   ),
                 ),
                 const SizedBox(height: 24),
+
                 Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -206,6 +217,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
 
   // make server post request
   void submitPin() async {
+    print('submitting pin');
     try {
       Map<String, dynamic> data = {
         'pin': _pinController.text,
@@ -213,23 +225,23 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
         /*'password': _passwordController.text,
         'is_secure': _isPinSecure ? true : false,*/
       };
-      /*Map<String, dynamic> response = await fetchData(
-        endpoint: makeUrl('api'), // domain.com/api
+      Map<String, dynamic> response = await fetchData(
+        endpoint: makeUrl('/'), // domain.com/
         data: data,
-      );*/
-      // temporrily make a dummy response that returns PIN corrtly
-      Map<String, dynamic> response = {'pin': _pinController.text}; // TMP ---
-
-      print(response);
+      );
 
       // if 'pin' is in response, navigate to Clipboard() screen
       if (response.containsKey('pin')) {
+        print(response['pin']);
+        final data =
+            await fetchData(endpoint: makeUrl('clipboard/' + response['pin']))
+                as List<dynamic>;
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Clipboard(
-              pin: response['pin'],
-            ),
+                pin: response['pin'],
+                data: List<Map<String, dynamic>>.from(data)),
           ),
         );
       } else {

@@ -2,39 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pixelarticons/pixelarticons.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
+import 'backyard.dart';
+
+import 'dart:html'; // for web only
+import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart';
+import 'dart:convert';
+
 class Clipboard extends StatefulWidget {
   String pin;
-  Clipboard({required this.pin});
+  List<Map<String, dynamic>> data;
+  Clipboard({required this.pin, required this.data});
   @override
   _ClipboardState createState() => _ClipboardState();
 }
 
 class _ClipboardState extends State<Clipboard> {
-  final TextEditingController _pinController = TextEditingController();
   String _errorMessage = '';
   bool _showModal = false;
-
-  void _toggleModal() {
-    setState(() {
-      _showModal = !_showModal;
-    });
-  }
-
-  void _showError(String message) {
-    setState(() {
-      _errorMessage = message;
-    });
-  }
-
-  void _uploadFile() {
-    // Handle file upload
-    _toggleModal();
-  }
-
-  void _pasteText() {
-    // Handle paste text
-    _toggleModal();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +35,7 @@ class _ClipboardState extends State<Clipboard> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Tooltip(
-                    message: 'Click to go back to home page',
+                    message: 'Go back to home page',
                     child: GestureDetector(
                       onTap: () {
                         // Navigate to home
@@ -56,7 +43,8 @@ class _ClipboardState extends State<Clipboard> {
                       },
                       child: Text(
                         'Clipboard',
-                        style: TextStyle(fontSize: 24, color: Colors.white),
+                        style: GoogleFonts.redHatMono(
+                            fontSize: 24, color: Colors.white),
                       ),
                     ),
                   ),
@@ -74,12 +62,13 @@ class _ClipboardState extends State<Clipboard> {
                   Spacer(),
 
                   Tooltip(
-                    message: 'Helps keep the site running',
+                    message: 'Help keep the site running',
                     child: ElevatedButton(
                       onPressed: () {
                         // Open Patreon link
                       },
                       style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                         backgroundColor:
                             Colors.yellow.shade800, //Color(0xFFf93),
                         shape: RoundedRectangleBorder(
@@ -119,56 +108,15 @@ class _ClipboardState extends State<Clipboard> {
                   crossAxisSpacing: 10.0,
                   mainAxisSpacing: 10.0,
                 ),
-                itemCount: 10, // Replace with actual item count
+                itemCount: widget.data.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return _buildAddCard();
                   } else {
-                    return _buildCard(index);
+                    return _buildItemCard(index);
                   }
                 },
               ),
-
-              SizedBox(height: 12),
-
-// make a grid view of text area cards
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 290.0,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                ),
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return buildTextAreaCard(
-                      index,
-                      TextEditingController(),
-                      () {
-                        // Handle delete
-                      },
-                      () {
-                        // Handle save
-                      },
-                    );
-                  } else {
-                    return buildTextAreaCard(
-                      index,
-                      TextEditingController(text: 'This is a sample text.'),
-                      () {
-                        // Handle delete
-                      },
-                      () {
-                        // Handle save
-                      },
-                    );
-                  }
-                },
-              ),
-              // testt tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
-
               SizedBox(height: 20),
               Text(
                 'Made with ❤️ by Mujtaba',
@@ -178,7 +126,7 @@ class _ClipboardState extends State<Clipboard> {
           ),
         ),
       ),
-      floatingActionButton: _showModal ? _buildModal() : null,
+      floatingActionButton: _showModal ? _buildAddNewStuffModal() : null,
     );
   }
 
@@ -198,10 +146,18 @@ class _ClipboardState extends State<Clipboard> {
     );
   }
 
-  Widget _buildCard(int index) {
+  Widget _buildFileCard(int index, String fileName, Function onDelete) {
     return GestureDetector(
       onTap: () {
-        // Handle card tap
+        // show toast message
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Downloading $fileName'),
+          duration: Duration(seconds: 2),
+          showCloseIcon: true,
+        ));
+        // make get request to endpoint /files/<pin>/<filename>
+        // download file - currently for web only TODO
+        window.open(makeUrl('/files/${widget.pin}/$fileName'), '_blank');
       },
       child: Container(
         decoration: BoxDecoration(
@@ -215,10 +171,9 @@ class _ClipboardState extends State<Clipboard> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('my-old-weird-songs.mp4',
-                      style: TextStyle(color: Color(0xFFDAD8D4))),
+                  Text(fileName, style: TextStyle(color: Color(0xFFDAD8D4))),
                   SizedBox(height: 10),
-                  Icon(Icons.insert_drive_file,
+                  Icon(CupertinoIcons.cloud_download,
                       size: 48, color: Color(0xFFDAD8D4)),
                 ],
               ),
@@ -226,58 +181,29 @@ class _ClipboardState extends State<Clipboard> {
 
             // make a delete button on bottom left and a row with 2 buttons on bottom right: one for save and one for copy text
             Positioned(
-              bottom: 2,
-              left: 12,
+              bottom: 4, // 2,
+              left: 4, //12,
               child: Tooltip(
                 message: 'Delete file',
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      //color: Color(0xff904040),
-                      borderRadius: BorderRadius.circular(12),
+                child: ClipOval(
+                  child: Material(
+                    color: Colors.deepPurple, // Button color
+                    child: InkWell(
+                      splashColor: Colors.white30, // Splash color
+                      onTap: () {
+                        onDelete();
+                      },
+                      child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Icon(
+                            CupertinoIcons.delete,
+                            size: 16,
+                            color: Colors.white,
+                          )),
                     ),
-                    child: Icon(Icons.delete_forever_rounded,
-                        size: 20, color: Colors.red),
                   ),
                 ),
-              ),
-            ),
-
-            // display status text in between them
-            Positioned(
-              bottom: 5,
-              left: 40,
-              child: Text(
-                '356KB | 2 days ago',
-                style: TextStyle(color: Colors.white38, fontSize: 11),
-              ),
-            ),
-
-            Positioned(
-              bottom: 2,
-              right: 12,
-              child: Row(
-                children: [
-                  Tooltip(
-                    message: 'Download',
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          //color: Color(0xff404090),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.download_rounded,
-                            size: 20, color: Colors.green),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],
@@ -286,7 +212,7 @@ class _ClipboardState extends State<Clipboard> {
     );
   }
 
-  Widget buildTextAreaCard(int index, TextEditingController controller,
+  Widget _buildTextAreaCard(int index, TextEditingController controller,
       Function onDelete, Function onSave) {
     return Container(
       decoration: BoxDecoration(
@@ -328,206 +254,190 @@ class _ClipboardState extends State<Clipboard> {
 
           // make a delete button on bottom left and a row with 2 buttons on bottom right: one for save and one for copy text
           Positioned(
-            bottom: 2,
-            left: 12,
+            bottom: 4, // 2,
+            left: 4, //12,
             child: Tooltip(
               message: 'Delete text',
-              child: GestureDetector(
-                onTap: () {
-                  onDelete();
-                },
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    //color: Color(0xff904040),
-                    borderRadius: BorderRadius.circular(12),
+              child: ClipOval(
+                child: Material(
+                  color: Colors.deepPurple, // Button color
+                  child: InkWell(
+                    splashColor: Colors.white30, // Splash color
+                    onTap: () {
+                      onDelete();
+                    },
+                    child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Icon(
+                          CupertinoIcons.delete,
+                          size: 16,
+                          color: Colors.white,
+                        )),
                   ),
-                  child: Icon(Icons.delete_forever_rounded,
-                      size: 20, color: Colors.red),
                 ),
               ),
             ),
           ),
 
-          // display status text in between them
           Positioned(
-            bottom: 5,
-            left: 40,
-            child: Text(
-              '356KB | 2 days ago',
-              style: TextStyle(color: Colors.white38, fontSize: 11),
-            ),
-          ),
-
-          Positioned(
-            bottom: 2,
-            right: 12,
+            bottom: 4,
+            right: 4,
             child: Row(
               children: [
                 Tooltip(
                   message: 'Copy text',
-                  child: GestureDetector(
-                    onTap: () {
-                      // Handle copy all text
-                    },
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        //color: Color(0xff404090),
-                        borderRadius: BorderRadius.circular(12),
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.blueGrey, // Button color
+                      child: InkWell(
+                        splashColor: Colors.white30, // Splash color
+                        onTap: () {
+                          copyToClipboard(
+                              controller.text); // defined in backyard.dart
+                        },
+                        child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Icon(
+                              CupertinoIcons.doc_on_clipboard,
+                              size: 16,
+                              color: Colors.white,
+                            )),
                       ),
-                      child: Icon(Icons.copy_rounded,
-                          size: 20, color: Colors.blueGrey),
                     ),
                   ),
                 ),
+                const SizedBox(width: 2),
                 Tooltip(
                   message: 'Save text',
-                  child: GestureDetector(
-                    onTap: () {
-                      if (controller.text.length > 64 * 1024) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Text too long'),
-                              content: Text(
-                                  'Text size is more than 64 KB. Truncating to 65,536 characters (64 KB).'),
-                              contentTextStyle: TextStyle(
-                                color: Colors.black,
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    controller.text =
-                                        controller.text.substring(0, 64 * 1024);
-                                    Navigator.of(context).pop();
-                                    onSave();
-                                  },
-                                  child: Text('OK'),
-                                ),
-                              ],
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.green, // Button color
+                      child: InkWell(
+                        splashColor: Colors.white30, // Splash color
+                        onTap: () {
+                          if (controller.text.length > 64 * 1024) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Text too long'),
+                                  content: Text(
+                                      'Text size is more than 64 KB. Truncating to 65,536 characters (64 KB).'),
+                                  contentTextStyle: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        controller.text = controller.text
+                                            .substring(0, 64 * 1024);
+                                        Navigator.of(context).pop();
+                                        onSave();
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
-                          },
-                        );
-                      } else {
-                        onSave();
-                      }
-                    },
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        //color: Color(0xff409040),
-                        borderRadius: BorderRadius.circular(12),
+                          } else {
+                            onSave();
+                          }
+                        },
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Icon(
+                            Icons.save_rounded,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                      child: Icon(Icons.save_rounded,
-                          size: 20, color: Colors.green),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
-/*
-// make a faint copy-all-text icon on top right
-          Positioned(
-            top: -2,
-            right: -2,
-            child: Tooltip(
-              message: 'Copy text',
-              child: GestureDetector(
-                onTap: () {
-                  // Handle copy all text
-                },
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: Color(0xff404090),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.copy, size: 16, color: Color(0xFFDAD8D4)),
-                ),
-              ),
-            ),
-          ),
-
-          Positioned(
-              top: 0,
-              left: 0,
-              child: Tooltip(
-                message: "Delete text",
-                child: GestureDetector(
-                  onTap: () {
-                    onDelete();
-                  },
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Color(0xff904040),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child:
-                        Icon(Icons.delete, size: 16, color: Color(0xFFDAD8D4)),
-                  ),
-                ),
-              )),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Tooltip(
-              message: 'Save text',
-              child: GestureDetector(
-                onTap: () {
-                  if (controller.text.length > 64 * 1024) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Text Too Long'),
-                          content: Text(
-                              'Text size is more than 64 KB. Truncating to 65,536 characters (64 KB).'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                controller.text =
-                                    controller.text.substring(0, 64 * 1024);
-                                Navigator.of(context).pop();
-                                onSave();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    onSave();
-                  }
-                },
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: Color(0xff409040),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.save, size: 16, color: Color(0xFFDAD8D4)),
-                ),
-              ),
-            ),
-          ),*/
         ],
       ),
     );
   }
 
-  Widget _buildModal() {
+// --index is what the actual index of item in server
+  Widget _buildItemCard(int index) {
+    // get the index eleent of data
+    var item_serverIndex = index - 1;
+    var item = widget.data[item_serverIndex] as Map<String, dynamic>;
+
+    if (item.containsKey('file')) {
+      return _buildFileCard(
+        index,
+        item['file'],
+        () {
+          deleteItemAtIndex(item_serverIndex);
+        },
+      );
+    } else if (item.containsKey('text')) {
+      TextEditingController textEditingController =
+          TextEditingController(text: item['text']);
+      return _buildTextAreaCard(
+        index,
+        textEditingController,
+        () {
+          // delete
+          deleteItemAtIndex(item_serverIndex);
+        },
+        () {
+          // save
+          saveTextAtIndex(item_serverIndex, textEditingController.text);
+        },
+      );
+    }
+    return Container();
+  }
+
+  void deleteItemAtIndex(int item_serverIndex) async {
+    print('delteing item at index $item_serverIndex');
+    // make request to server at /delete/pin/index
+    final status = await fetchData(
+            endpoint: makeUrl('/delete/${widget.pin}/$item_serverIndex'))
+        as Map<String, dynamic>;
+    if (status.containsKey('error')) {
+      print(status['error']);
+    } else {
+      // remove item from widget.data
+      setState(() {
+        widget.data.removeAt(item_serverIndex);
+      });
+    }
+  }
+
+  Future<String> saveTextAtIndex(int item_serverIndex, String text) async {
+    // make request to server at /save/pin/index
+    final status = await fetchData(
+        endpoint: makeUrl('/texts/${widget.pin}/$item_serverIndex'),
+        data: {'text': text}) as Map<String, dynamic>;
+    if (status.containsKey('error')) {
+      return status['error'];
+    } else if (item_serverIndex != -1) {
+      // if its not new text being added
+      // update status text
+      setState(() {
+        widget.data[item_serverIndex]['text'] = text;
+      });
+    } else {
+      setState(() {
+        widget.data.add({'text': text});
+      });
+    }
+    return '';
+  }
+
+  Widget _buildAddNewStuffModal() {
     return Container(
       color: Colors.black54,
       child: Center(
@@ -549,7 +459,7 @@ class _ClipboardState extends State<Clipboard> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _uploadFile,
+                onPressed: _uploadFileToServer,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFeb6f92),
                   shape: RoundedRectangleBorder(
@@ -567,7 +477,7 @@ class _ClipboardState extends State<Clipboard> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _pasteText,
+                onPressed: _uploadTextToServer,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green, // Color(0xFF494),
                   shape: RoundedRectangleBorder(
@@ -588,5 +498,92 @@ class _ClipboardState extends State<Clipboard> {
         ),
       ),
     );
+  }
+
+  void _toggleModal() {
+    setState(() {
+      _showModal = !_showModal;
+    });
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
+  }
+
+  void _uploadFileToServer() async {
+    selectAndUploadFile(endpoint: makeUrl('/upload/${widget.pin}'));
+    _toggleModal();
+  }
+
+  void _uploadTextToServer() async {
+    // make request to server at /texts/<pin>/-1 for new text
+// create a new text item in widget.data and update the state
+    final text = await getClipboardText();
+    // now send the text to server
+    String error = await saveTextAtIndex(-1, text);
+    if (error.isNotEmpty) {
+      print(error);
+      return;
+    }
+    _toggleModal();
+  }
+  /*
+  data = [
+      {'file': 'filename.txt},
+      {'text': 'Hello, world!'},
+    ...
+    ]
+   */
+
+  //
+  //
+  //
+  //
+  Future<void> selectAndUploadFile({required String endpoint}) async {
+    // Pick a file
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.isNotEmpty) {
+      // Get the file
+      PlatformFile file = result.files.first;
+
+      try {
+        // Convert file bytes to MultipartFile
+        MultipartFile multipartFile = MultipartFile.fromBytes(
+          file.bytes!,
+          filename: file.name,
+        );
+
+        // Create FormData object
+        FormData formData = FormData.fromMap({
+          'file': multipartFile,
+        });
+
+        // Create Dio instance
+        Dio dio = Dio();
+
+        // Send POST request
+        var response = await dio.post(
+          endpoint,
+          data: formData,
+        );
+
+        // Handle response
+        var jsonResponse = json.decode(response.toString());
+        if (response.statusCode == 200 && jsonResponse['success'] != null) {
+          setState(() {
+            widget.data.add({'file': file.name});
+          });
+        } else {
+          print(jsonResponse['error'] ?? 'Error uploading file');
+        }
+      } catch (e) {
+        print('Error uploading file: $e');
+      }
+    } else {
+      print('No file selected');
+    }
   }
 }

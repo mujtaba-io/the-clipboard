@@ -1,14 +1,21 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 
-const String DOMAIN = 'https://mujtaba-io-clipboard.hf.space';
+import 'package:file_picker/file_picker.dart';
+
+const String DOMAIN = 'http://localhost:7860'; // do NOT include trailing slash
 
 String makeUrl(String path) {
-  return 'https://$DOMAIN/$path';
+  if (path.startsWith('/')) {
+    return '$DOMAIN$path';
+  } else {
+    return '$DOMAIN/$path';
+  }
 }
 
 // Replace 'your_api_endpoint' with the actual endpoint URL
-Future<Map<String, dynamic>> fetchData(
+Future<dynamic> fetchData(
     {required String endpoint, Map<String, dynamic>? data}) async {
   Dio dio = Dio();
   try {
@@ -22,7 +29,7 @@ Future<Map<String, dynamic>> fetchData(
     }
     if (response.statusCode == 200) {
       // Parse the JSON response and convert to a Map with String keys
-      return Map<String, dynamic>.from(jsonDecode(response.data));
+      return jsonDecode(response.data);
     } else {
       // Handle error based on status code
       throw Exception(
@@ -34,7 +41,6 @@ Future<Map<String, dynamic>> fetchData(
   }
 }
 
-
 /*
 usage:
 import 'package:clipboard/backyard.dart';
@@ -44,3 +50,23 @@ fetchData(endpoint: makeUrl('api/clipboard')).then((data) {
   print(e);
 });
 */
+
+void copyToClipboard(String text) {
+  Clipboard.setData(ClipboardData(text: text));
+}
+
+Future<String> getClipboardText() async {
+  ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+  if (clipboardData != null) {
+    return clipboardData.text ?? '';
+  } else {
+    return '';
+  }
+}
+
+//
+//
+//
+//
+//
+
