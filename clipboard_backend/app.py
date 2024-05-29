@@ -29,11 +29,11 @@ data = {
 
 
 
-MAX_TEXT_SIZE = 64 * 1024
-MAX_PIN_SIZE = 32
+MAX_TEXT_SIZE = 32 * 1024 # 32 KB
+MAX_PIN_SIZE = 32 # 32 bytes
 MAX_FILE_SIZE = 32 * 1024 * 1024 # 32 MB
 
-MIN_PIN_SIZE = 4
+MIN_PIN_SIZE = 4 # 4 bytes
 
 
 @app.route('/', methods=['POST'])

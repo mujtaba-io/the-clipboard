@@ -6,6 +6,8 @@ import 'package:file_picker/file_picker.dart';
 
 const String DOMAIN = 'http://localhost:7860'; // do NOT include trailing slash
 
+Dio dio = Dio();
+
 String makeUrl(String path) {
   if (path.startsWith('/')) {
     return '$DOMAIN$path';
@@ -17,7 +19,6 @@ String makeUrl(String path) {
 // Replace 'your_api_endpoint' with the actual endpoint URL
 Future<dynamic> fetchData(
     {required String endpoint, Map<String, dynamic>? data}) async {
-  Dio dio = Dio();
   try {
     Response response;
     if (data != null) {
@@ -70,3 +71,8 @@ Future<String> getClipboardText() async {
 //
 //
 
+const int MAX_TEXT_SIZE = 32 * 1024; // 32 KB
+const int MAX_PIN_SIZE = 32; // 32 bytes
+const int MAX_FILE_SIZE = 32 * 1024 * 1024; // 32 MB
+
+const int MIN_PIN_SIZE = 4; // 4 bytes

@@ -23,7 +23,7 @@ class ClipboardApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Segoe UI',
         scaffoldBackgroundColor: Color(0xFF191724),
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Color(0xFFDAD8D4)),
         ),
       ),
@@ -51,9 +51,10 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
         _errorMessage = 'Please enter a PIN';
       });
       return '';
-    } else if (value.length < 4 || value.length > 32) {
+    } else if (value.length < MIN_PIN_SIZE || value.length > MAX_PIN_SIZE) {
       setState(() {
-        _errorMessage = 'PIN must be between 4 and 32 characters';
+        _errorMessage =
+            'PIN must be between $MIN_PIN_SIZE and $MAX_PIN_SIZE characters';
       });
       return '';
     }
@@ -67,7 +68,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -102,9 +103,9 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                     children: <Widget>[
                       Container(
                         decoration: BoxDecoration(
-                          color: Color(0xFF232136),
+                          color: const Color(0xFF232136),
                           borderRadius: BorderRadius.circular(32),
-                          border: Border.all(color: Color(0xFF524B49)),
+                          border: Border.all(color: const Color(0xFF524B49)),
                         ),
                         child: TextFormField(
                           controller: _pinController,
@@ -117,7 +118,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                             hintStyle: TextStyle(color: Colors.white54),
                             fillColor: Color(0xFF232136),
                           ),
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                           validator: _validatePin,
                         ),
                       ),
@@ -126,7 +127,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           child: Text(
                             _errorMessage,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Color(0xFFFF5555),
                               fontSize: 12,
                             ),
@@ -172,7 +173,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                               borderRadius: BorderRadius.circular(32),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Enter',
                             style: TextStyle(color: Colors.white),
                           ),
@@ -184,18 +185,18 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                 const SizedBox(height: 24),
 
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Color(0xFF232136),
+                    color: const Color(0xFF232136),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Color(0xFF524B49)),
+                    border: Border.all(color: const Color(0xFF524B49)),
                   ),
                   child: const Text(
                     'Clipboard is a handy tool that lets you save text, files, and links for later use across devices!',
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
                 const Text(
                   'Made with ❤️ by Mujtaba',
                   textAlign: TextAlign.center,
