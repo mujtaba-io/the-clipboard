@@ -480,64 +480,72 @@ class _ClipboardState extends State<Clipboard> {
   }
 
   Widget _buildAddNewStuffModal() {
-    return Container(
-      color: Colors.black54,
-      child: Center(
-        child: Container(
-          width: 256,
-          height: 164,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFF232136),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF524B49)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Add new stuff!',
-                style: TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _uploadFileToServer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFeb6f92),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
+    return GestureDetector(
+      onTap: _toggleModal,
+      child: Container(
+        color: Colors.black54,
+        child: Center(
+            child: GestureDetector(
+          onTap: () {
+            // do nothing when tapped inside modal
+          },
+          child: Container(
+            width: 256,
+            height: 164,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF232136),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF524B49)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Add new stuff!',
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _uploadFileToServer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFeb6f92),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.upload_file, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text('Upload File',
+                          style: TextStyle(color: Colors.white)),
+                    ],
                   ),
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.upload_file, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text('Upload File', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _uploadTextToServer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Color(0xFF494),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _uploadTextToServer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Color(0xFF494),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.paste, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text('Paste Text', style: TextStyle(color: Colors.white)),
+                    ],
                   ),
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.paste, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text('Paste Text', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        )),
       ),
     );
   }
@@ -611,6 +619,17 @@ class _ClipboardState extends State<Clipboard> {
           return;
         }
 
+        // create a popup with progress indicator
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              title: Text('Uploading file...'),
+              content: LinearProgressIndicator(),
+            );
+          },
+        );
+
         // Create FormData object
         FormData formData = FormData.fromMap({
           'file': multipartFile,
@@ -626,6 +645,10 @@ class _ClipboardState extends State<Clipboard> {
 
         // Handle response
         var jsonResponse = json.decode(response.toString());
+
+        // Close the popup with progress indicator
+        Navigator.pop(context);
+
         if (response.statusCode == 200 && jsonResponse['success'] != null) {
           // widget.data.add({'file': file.name}); ERROR PRONE AS SERVER CHANGES FILENAME ON SERVER SIDE
           // get refreshed data from server

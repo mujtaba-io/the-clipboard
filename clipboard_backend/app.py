@@ -19,6 +19,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}) # allows requests from all origin
 data = {}
 
 # test data
+"""
 data = {
     'mujtaba': [
         {'file': 'url'},
@@ -26,6 +27,7 @@ data = {
         {'file': 'irl'}, # filename will be url's last name with extension
     ]
 }
+"""
 
 
 
@@ -200,7 +202,6 @@ def system_status():
 @app.route('/alldata', methods=['GET'])
 def all_data():
     return json.dumps(data, indent=4)
-
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=7860)

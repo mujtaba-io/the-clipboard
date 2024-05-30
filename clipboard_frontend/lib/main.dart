@@ -109,6 +109,15 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                         ),
                         child: TextFormField(
                           controller: _pinController,
+                          onFieldSubmitted: (value) {
+                            // if pressed enter
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _errorMessage = '';
+                              });
+                              submitPin();
+                            }
+                          },
                           decoration: const InputDecoration(
                             errorStyle: TextStyle(
                                 height: 0), // to disable default error message

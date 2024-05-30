@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
-import 'package:file_picker/file_picker.dart';
-
 const String DOMAIN = 'http://localhost:7860'; // do NOT include trailing slash
 
 Dio dio = Dio();
