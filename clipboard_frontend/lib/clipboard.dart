@@ -11,6 +11,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 
+import 'custom_widgets.dart';
+
 class Clipboard extends StatefulWidget {
   String pin;
   List<Map<String, dynamic>> data;
@@ -93,11 +95,11 @@ class _ClipboardState extends State<Clipboard> {
                       // show list menu with 2 options
                       showMenu(
                         context: context,
-                        position: RelativeRect.fromLTRB(100, 100, 0, 0),
+                        position: const RelativeRect.fromLTRB(100, 100, 0, 0),
                         items: [
                           PopupMenuItem(
                             child: ListTile(
-                              title: const Text('Back to home'),
+                              title: const Text('Back to Home'),
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.pop(context);
@@ -106,7 +108,7 @@ class _ClipboardState extends State<Clipboard> {
                           ),
                           PopupMenuItem(
                             child: ListTile(
-                              title: const Text('Visit gameidea'),
+                              title: const Text('Visit gameidea.org'),
                               onTap: () {
                                 window.open(
                                   'https://gameidea.org/',
@@ -135,7 +137,7 @@ class _ClipboardState extends State<Clipboard> {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent:
-                      290.0, // Adjust minimum width per card here
+                      232.0, // Adjust minimum width per card here
                   crossAxisSpacing: 10.0,
                   mainAxisSpacing: 10.0,
                 ),
@@ -325,8 +327,11 @@ class _ClipboardState extends State<Clipboard> {
                       child: InkWell(
                         splashColor: Colors.white30, // Splash color
                         onTap: () {
-                          copyToClipboard(
-                              controller.text); // defined in backyard.dart
+                          // defined in backyard.dart
+                          copyToClipboard(controller.text);
+
+                          showCustomSnackBar(
+                              context, 'Text copied to clipboard', true);
                         },
                         child: const SizedBox(
                             width: 24,
@@ -452,12 +457,10 @@ class _ClipboardState extends State<Clipboard> {
     // validate text size
     if (text.length > MAX_TEXT_SIZE) {
       text = text.substring(0, MAX_TEXT_SIZE);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-            'Text size is more than ${MAX_TEXT_SIZE / 1024} KB. Truncated to ${MAX_TEXT_SIZE / 1024} KB and saving.'),
-        duration: Duration(seconds: 2),
-        showCloseIcon: true,
-      ));
+      showCustomSnackBar(
+          context,
+          'Text size is more than ${MAX_TEXT_SIZE / 1024} KB. Truncated to ${MAX_TEXT_SIZE / 1024} KB and saving.',
+          true);
     }
     // make request to server at /save/pin/index
     final status = await fetchData(
@@ -576,11 +579,7 @@ class _ClipboardState extends State<Clipboard> {
     String error = await saveTextAtIndex(-1, text);
     if (error.isNotEmpty) {
       print(error);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Error saving text.'),
-        duration: Duration(seconds: 2),
-        showCloseIcon: true,
-      ));
+      showCustomSnackBar(context, 'Error saving text.', true);
       return;
     }
   }
@@ -610,12 +609,8 @@ class _ClipboardState extends State<Clipboard> {
         // validate file size
         if (file.size > MAX_FILE_SIZE) {
           // crate toast message
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                'File size is more than ${MAX_FILE_SIZE / 1024 / 1024} MB'),
-            duration: Duration(seconds: 2),
-            showCloseIcon: true,
-          ));
+          showCustomSnackBar(context,
+              'File size is more than ${MAX_FILE_SIZE / 1024 / 1024} MB', true);
           return;
         }
 
@@ -661,28 +656,16 @@ class _ClipboardState extends State<Clipboard> {
           });
         } else {
           print(jsonResponse['error'] ?? 'Error uploading file');
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Error uploading file'),
-            duration: Duration(seconds: 2),
-            showCloseIcon: true,
-          ));
+          showCustomSnackBar(context, 'Error uploading file', true);
         }
       } catch (e) {
         print('Error uploading file: $e');
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Error uploading file'),
-          duration: Duration(seconds: 2),
-          showCloseIcon: true,
-        ));
+        showCustomSnackBar(context, 'Error uploading file', true);
       }
     } else {
       print('No file selected');
       // make toast message
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('No file selected'),
-        duration: Duration(seconds: 2),
-        showCloseIcon: true,
-      ));
+      showCustomSnackBar(context, 'No file selected', true);
     }
   }
 }

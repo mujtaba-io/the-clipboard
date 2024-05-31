@@ -1,6 +1,5 @@
 // MAKESURE LINE: 218 REPLACE
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pixelarticons/pixelarticons.dart';
 
@@ -22,7 +21,7 @@ class ClipboardApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Segoe UI',
-        scaffoldBackgroundColor: Color(0xFF191724),
+        scaffoldBackgroundColor: const Color(0xFF191724),
         textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Color(0xFFDAD8D4)),
         ),
@@ -42,8 +41,8 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
   final TextEditingController _pinController = TextEditingController();
   String _errorMessage = '';
 
-  bool _isPinSecure = false;
-  final TextEditingController _passwordController = TextEditingController();
+  //bool _isPinSecure = false;
+  //final TextEditingController _passwordController = TextEditingController();
 
   String? _validatePin(String? value) {
     if (value == null || value.isEmpty) {
