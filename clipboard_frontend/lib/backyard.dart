@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
-const String DOMAIN = 'https://mujtaba-io-clipboard.hf.space'; // do NOT include trailing slash
+const String DOMAIN =
+    'https://mujtaba-io-clipboard.hf.space'; // do NOT include trailing slash
 
 Dio dio = Dio();
 
@@ -71,6 +72,8 @@ Future<String> getClipboardText() async {
 
 const int MAX_TEXT_SIZE = 32 * 1024; // 32 KB
 const int MAX_PIN_SIZE = 32; // 32 bytes
-const int MAX_FILE_SIZE = 32 * 1024 * 1024; // 32 MB
+const int MAX_FILE_SIZE = 64 * 1024 * 1024; // 64 MB
 
 const int MIN_PIN_SIZE = 4; // 4 bytes
+
+const int MAX_FILES_PER_UPLOAD = 50;

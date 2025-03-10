@@ -10,6 +10,8 @@ import 'dart:html'; // for web only
 import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'dart:html' as html;
+import 'dart:typed_data';
 
 import 'custom_widgets.dart';
 
@@ -68,23 +70,23 @@ class _ClipboardState extends State<Clipboard> {
                     child: ElevatedButton(
                       onPressed: () {
                         // Open Patreon link
-                        window.open(
-                            'https://www.patreon.com/mujtaba_io', '_blank');
+                        window.open('https://gameidea.org/about/', '_blank');
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         backgroundColor:
-                            Colors.yellow.shade800, //Color(0xFFf93),
+                            Colors.indigo.shade800, //Color(0xFFf93),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32),
                         ),
                       ),
                       child: const Text(
-                        'Donate',
+                        'Contact',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
+
                   FloatingActionButton(
                     tooltip: 'More options',
                     mini: true,
@@ -131,6 +133,25 @@ class _ClipboardState extends State<Clipboard> {
                   _errorMessage,
                   style: const TextStyle(color: Color(0xFFFF5555)),
                 ),
+
+//
+//
+
+//
+//
+//
+//
+
+              bulkDownloadButtonWidget(context),
+
+              ///
+              ///
+              ///
+////
+              ///
+              ///
+              ///
+
               const SizedBox(height: 20),
               GridView.builder(
                 shrinkWrap: true,
@@ -592,45 +613,62 @@ class _ClipboardState extends State<Clipboard> {
    */
 
   Future<void> selectAndUploadFile({required String endpoint}) async {
-    // Pick a file
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    // Modify FilePickerResult to allow multiple files
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
 
     if (result != null && result.files.isNotEmpty) {
-      // Get the file
-      PlatformFile file = result.files.first;
-
       try {
-        // Convert file bytes to MultipartFile
-        MultipartFile multipartFile = MultipartFile.fromBytes(
-          file.bytes!,
-          filename: file.name,
-        );
-
-        // validate file size
-        if (file.size > MAX_FILE_SIZE) {
-          // crate toast message
-          showCustomSnackBar(context,
-              'File size is more than ${MAX_FILE_SIZE / 1024 / 1024} MB', true);
+        // Validate total size of all files
+        int totalSize = result.files.fold(0, (sum, file) => sum + file.size);
+        if (totalSize > MAX_FILE_SIZE * MAX_FILES_PER_UPLOAD) {
+          showCustomSnackBar(
+              context,
+              'Total file size is more than ${(MAX_FILE_SIZE * MAX_FILES_PER_UPLOAD) / 1024 / 1024} MB',
+              true);
           return;
         }
 
-        // create a popup with progress indicator
+        // Create FormData with multiple files
+        FormData formData = FormData();
+
+        // Add each file to formData
+        for (PlatformFile file in result.files) {
+          if (file.size > MAX_FILE_SIZE) {
+            showCustomSnackBar(
+                context,
+                'File ${file.name} is larger than ${MAX_FILE_SIZE / 1024 / 1024} MB',
+                true);
+            continue;
+          }
+
+          MultipartFile multipartFile = MultipartFile.fromBytes(
+            file.bytes!,
+            filename: file.name,
+          );
+
+          // Note the files[] array syntax for multiple files
+          formData.files.add(MapEntry('files[]', multipartFile));
+        }
+
+        // Show upload progress dialog
         showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (context) {
-            return const AlertDialog(
-              title: Text('Uploading file...'),
-              content: LinearProgressIndicator(),
+            return AlertDialog(
+              title: const Text('Uploading files...'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  LinearProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Please wait while your files are being uploaded...'),
+                ],
+              ),
             );
           },
         );
-
-        // Create FormData object
-        FormData formData = FormData.fromMap({
-          'file': multipartFile,
-        });
-
-        // Create Dio instance - no, use from backyard.dart
 
         // Send POST request
         var response = await dio.post(
@@ -638,34 +676,226 @@ class _ClipboardState extends State<Clipboard> {
           data: formData,
         );
 
+        // Close progress dialog
+        Navigator.pop(context);
+
         // Handle response
         var jsonResponse = json.decode(response.toString());
 
-        // Close the popup with progress indicator
-        Navigator.pop(context);
-
-        if (response.statusCode == 200 && jsonResponse['success'] != null) {
-          // widget.data.add({'file': file.name}); ERROR PRONE AS SERVER CHANGES FILENAME ON SERVER SIDE
-          // get refreshed data from server
-          (fetchData(
+        if (response.statusCode == 200 &&
+            jsonResponse['successful_uploads'] != null) {
+          // Refresh data from server to get updated list
+          var data = await fetchData(
             endpoint: makeUrl('/clipboard/${widget.pin}'),
-          )).then((data) {
-            setState(() {
-              widget.data = List<Map<String, dynamic>>.from(data);
-            });
+          );
+
+          setState(() {
+            widget.data = List<Map<String, dynamic>>.from(data);
           });
+
+          // Show summary of upload results
+          showCustomSnackBar(
+              context,
+              '${jsonResponse['total_successful']} files uploaded successfully' +
+                  (jsonResponse['total_failed'] > 0
+                      ? ', ${jsonResponse['total_failed']} failed'
+                      : ''),
+              jsonResponse['total_failed'] > 0);
         } else {
-          print(jsonResponse['error'] ?? 'Error uploading file');
-          showCustomSnackBar(context, 'Error uploading file', true);
+          print(jsonResponse['error'] ?? 'Error uploading files');
+          showCustomSnackBar(context, 'Error uploading files', true);
         }
       } catch (e) {
-        print('Error uploading file: $e');
-        showCustomSnackBar(context, 'Error uploading file', true);
+        print('Error uploading files: $e');
+        showCustomSnackBar(context, 'Error uploading files', true);
       }
     } else {
-      print('No file selected');
-      // make toast message
-      showCustomSnackBar(context, 'No file selected', true);
+      print('No files selected');
+      showCustomSnackBar(context, 'No files selected', true);
     }
+  }
+
+  void _downloadAllContent() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      // Download files
+      for (var item in widget.data) {
+        if (item.containsKey('file')) {
+          // Download file directly
+          window.open(
+              makeUrl('/files/${widget.pin}/${item['file']}'), '_blank');
+          await Future.delayed(
+              const Duration(milliseconds: 500)); // Add delay between downloads
+        } else if (item.containsKey('text')) {
+          // Create text file download
+          _downloadTextAsFile(
+              item['text'], 'text_${widget.data.indexOf(item)}.txt');
+          await Future.delayed(
+              const Duration(milliseconds: 500)); // Add delay between downloads
+        }
+      }
+
+      // Hide loading indicator
+      Navigator.pop(context);
+
+      // Show success message
+      showCustomSnackBar(
+        context,
+        'Started downloading all files and texts',
+        false,
+      );
+    } catch (e) {
+      // Hide loading indicator
+      Navigator.pop(context);
+
+      // Show error message
+      showCustomSnackBar(
+        context,
+        'Error downloading content: $e',
+        true,
+      );
+    }
+  }
+
+  void _downloadTextAsFile(String text, String filename) {
+    // Create a Blob containing the text
+    final blob = Blob([text], 'text/plain', 'native');
+
+    // Create a URL for the Blob
+    final url = Url.createObjectUrlFromBlob(blob);
+
+    // Create an anchor element and trigger download
+    final anchor = AnchorElement(href: url)
+      ..setAttribute('download', filename)
+      ..click();
+
+    // Clean up by revoking the URL
+    Url.revokeObjectUrl(url);
+  }
+
+//
+
+//
+
+  ///
+  ///
+
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+
+  Widget bulkDownloadButtonWidget(BuildContext ctx) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Define your content
+        final downloadButton = Tooltip(
+          message: 'Download all files and texts',
+          child: ElevatedButton.icon(
+            onPressed: widget.data.isEmpty ? null : () => _downloadAllContent(),
+            icon: const Icon(CupertinoIcons.cloud_download,
+                color: Colors.white, size: 20),
+            label: const Text(
+              'Download All',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              backgroundColor: Colors.blue.shade700,
+              elevation: 4,
+              shadowColor: Colors.blue.shade900.withOpacity(0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
+        );
+
+        final infoContainer = Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade900.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.blue.shade300.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                CupertinoIcons.info_circle,
+                color: Colors.blue.shade300,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Clipboard is free! If you love it, let me know :)',
+                style: GoogleFonts.inter(
+                  color: Colors.blue.shade300,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        );
+
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF232136).withOpacity(0.7),
+            border: Border.all(
+              color: Colors.blue.shade700.withOpacity(0.3),
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.shade900.withOpacity(0.1),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child:
+                constraints.maxWidth > 600 // Adjust this breakpoint as needed
+                    ? Row(
+                        children: [
+                          downloadButton,
+                          const Spacer(),
+                          infoContainer,
+                        ],
+                      )
+                    : Wrap(
+                        spacing: 16,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          downloadButton,
+                          infoContainer,
+                        ],
+                      ),
+          ),
+        );
+      },
+    );
   }
 }
