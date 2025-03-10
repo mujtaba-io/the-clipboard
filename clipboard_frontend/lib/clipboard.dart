@@ -795,17 +795,20 @@ class _ClipboardState extends State<Clipboard> {
   ///
   ///
   ///
-
   Widget bulkDownloadButtonWidget(BuildContext ctx) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Define your content
+        final bool isWideScreen = constraints.maxWidth > 600;
+
         final downloadButton = Tooltip(
           message: 'Download all files and texts',
           child: ElevatedButton.icon(
             onPressed: widget.data.isEmpty ? null : () => _downloadAllContent(),
-            icon: const Icon(CupertinoIcons.cloud_download,
-                color: Colors.white, size: 20),
+            icon: const Icon(
+              CupertinoIcons.cloud_download,
+              color: Colors.white,
+              size: 20,
+            ),
             label: const Text(
               'Download All',
               style: TextStyle(
@@ -814,7 +817,10 @@ class _ClipboardState extends State<Clipboard> {
               ),
             ),
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: isWideScreen ? 20 : 16,
+                vertical: 12,
+              ),
               backgroundColor: Colors.blue.shade700,
               elevation: 4,
               shadowColor: Colors.blue.shade900.withOpacity(0.5),
@@ -825,8 +831,23 @@ class _ClipboardState extends State<Clipboard> {
           ),
         );
 
+        // Calculate available width for the info container
+        // Consider padding and button width
+        final double buttonWidth = 150; // Estimated button width
+        final double horizontalPadding =
+            isWideScreen ? 48 : 32; // Total horizontal padding
+        final double availableWidth =
+            constraints.maxWidth - buttonWidth - horizontalPadding;
+
         final infoContainer = Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          // Allow container to take available space but not more than needed
+          constraints: BoxConstraints(
+            maxWidth: isWideScreen ? availableWidth : double.infinity,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: isWideScreen ? 16 : 12,
+            vertical: 6,
+          ),
           decoration: BoxDecoration(
             color: Colors.blue.shade900.withOpacity(0.2),
             borderRadius: BorderRadius.circular(20),
@@ -843,13 +864,20 @@ class _ClipboardState extends State<Clipboard> {
                 color: Colors.blue.shade300,
                 size: 16,
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Clipboard is free! If you love it, let me know :)',
-                style: GoogleFonts.inter(
-                  color: Colors.blue.shade300,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  'Clipboard is free! If you love it, let me know :)',
+                  style: GoogleFonts.inter(
+                    color: Colors.blue.shade300,
+                    fontSize: isWideScreen ? 14 : 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  // Only use ellipsis when screen is narrow
+                  overflow: isWideScreen
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -857,7 +885,10 @@ class _ClipboardState extends State<Clipboard> {
         );
 
         return Container(
-          margin: const EdgeInsets.symmetric(vertical: 12),
+          margin: EdgeInsets.symmetric(
+            vertical: isWideScreen ? 12 : 8,
+            horizontal: isWideScreen ? 0 : 8,
+          ),
           decoration: BoxDecoration(
             color: const Color(0xFF232136).withOpacity(0.7),
             border: Border.all(
@@ -874,25 +905,23 @@ class _ClipboardState extends State<Clipboard> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child:
-                constraints.maxWidth > 600 // Adjust this breakpoint as needed
-                    ? Row(
-                        children: [
-                          downloadButton,
-                          const Spacer(),
-                          infoContainer,
-                        ],
-                      )
-                    : Wrap(
-                        spacing: 16,
-                        runSpacing: 12,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          downloadButton,
-                          infoContainer,
-                        ],
-                      ),
+            padding: EdgeInsets.symmetric(
+              horizontal: isWideScreen ? 24 : 16,
+              vertical: 8,
+            ),
+            child: Row(
+              mainAxisAlignment: isWideScreen
+                  ? MainAxisAlignment.spaceBetween
+                  : MainAxisAlignment.start,
+              children: [
+                downloadButton,
+                if (!isWideScreen) const SizedBox(width: 12),
+                Flexible(
+                  fit: isWideScreen ? FlexFit.loose : FlexFit.tight,
+                  child: infoContainer,
+                ),
+              ],
+            ),
           ),
         );
       },
