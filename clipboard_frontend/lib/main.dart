@@ -4,9 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'clipboard.dart';
 import 'backyard.dart';
-import 'component_enter_button.dart';
-import 'custom_widgets.dart';
-import 'component_particle_button.dart';
 
 void main() {
   runApp(ClipboardApp());
@@ -60,86 +57,148 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const SizedBox(height: 128),
-                  const Icon(
-                    Pixel.heart,
-                    size: 100,
-                    color: Colors.deepPurple,
-                  ),
-                  Text(
-                    'The Clipboard',
-                    style: GoogleFonts.redHatMono(
-                      fontSize: 32,
+      body: Stack(
+        children: [
+          // Background decorations
+          Positioned(
+            top: -120,
+            left: -120,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF312F4F).withOpacity(0.5),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -180,
+            right: -150,
+            child: Container(
+              width: 360,
+              height: 360,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFEB6F92).withOpacity(0.25),
+              ),
+            ),
+          ),
+          // Main content centered
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 380),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    // Header Section
+                    const Icon(
+                      Pixel.heart,
+                      size: 64,
+                      color: Color(0xFFEB6F92),
                     ),
-                  ),
-                  const Text(
-                    'Move text or files between devices!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  const Divider(
-                    color: Color(0xFF524B49),
-                    thickness: 1,
-                    height: 24,
-                  ),
-                  const SizedBox(height: 24),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF232136),
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: const Color(0xFF524B49)),
-                          ),
-                          child: TextFormField(
+                    const SizedBox(height: 24),
+                    Text(
+                      'The Clipboard',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.pressStart2p(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFE0DEF4),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Move text or files between devices!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF908CAA),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+
+                    // Form Section
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          TextFormField(
                             controller: _pinController,
-                            onFieldSubmitted: (value) {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  _errorMessage = '';
-                                });
-                                submitPin();
-                              }
-                            },
-                            decoration: const InputDecoration(
-                              errorStyle: TextStyle(height: 0),
-                              hintText: 'Create or use existing PIN',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
-                              hintStyle: TextStyle(color: Colors.white54),
-                              fillColor: Color(0xFF232136),
-                            ),
-                            style: const TextStyle(color: Colors.white),
-                            validator: _validatePin,
-                          ),
-                        ),
-                        if (_errorMessage.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5.0),
-                            child: Text(
-                              _errorMessage,
-                              style: const TextStyle(
-                                color: Color(0xFFFF5555),
-                                fontSize: 12,
+                            onFieldSubmitted: (value) => submitPin(),
+                            decoration: InputDecoration(
+                              hintText: 'Enter your PIN',
+                              hintStyle:
+                                  const TextStyle(color: Color(0xFF6E6A86)),
+                              filled: true,
+                              fillColor: const Color(0xFF232136),
+                              errorStyle: const TextStyle(
+                                  height: 0.01, color: Colors.transparent),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF3E3A59),
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF3E3A59),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFEB6F92),
+                                  width: 2.0,
+                                ),
                               ),
                             ),
+                            style: const TextStyle(color: Color(0xFFE0DEF4)),
+                            validator: _validatePin,
                           ),
-                        if (_errorMessage.isEmpty) const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: EnterButton(
-                            width: double.infinity,
+                          // Display error message below the text field
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SizeTransition(
+                                  sizeFactor: animation,
+                                  axisAlignment: -1.0,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _errorMessage.isNotEmpty
+                                ? Padding(
+                                    key: const ValueKey('error'),
+                                    padding: const EdgeInsets.only(
+                                        top: 8.0, left: 4.0),
+                                    child: Text(
+                                      _errorMessage,
+                                      style: const TextStyle(
+                                        color: Color(0xFFF6C177),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(
+                                    key: ValueKey('no_error')),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: const Color(0xFFEB6F92),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
                                 setState(() {
@@ -148,111 +207,70 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                                 submitPin();
                               }
                             },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF232136),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFF524B49)),
-                    ),
-                    child: const Text(
-                      'Clipboard is a handy tool that lets you save text, files, and links for later use across devices!',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Made with ❤️ by Mujtaba',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFFeb6f92)),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'By using this software, you agree that this software is provided \'as-is\'. There is no warranty and author is not liable for any damage.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  const SizedBox(height: 16),
-                  // Warning message moved inside the scrollable area
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    constraints: const BoxConstraints(maxWidth: 512),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      border: Border.all(color: Colors.red.withOpacity(0.3)),
-                    ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.warning_amber_rounded,
-                          color: Colors.red[300],
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            "Don't use clipboard for sensitive files, anyone with PIN can access it",
-                            style: TextStyle(
-                              color: Colors.red[300],
-                              fontSize: 12,
+                            child: const Text(
+                              'Submit PIN',
+                              style: TextStyle(
+                                color: Color(0xFF191724),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
-                            softWrap: true,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 84), // Space for FAB
-                ],
+                    const SizedBox(height: 48),
+
+                    // Warning & Footer Section
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6C177).withOpacity(0.1),
+                        border: Border.all(
+                            color: const Color(0xFFF6C177).withOpacity(0.2)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: const Color(0xFFF6C177),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              "Don't use for sensitive data, as it's publicly accessible with a PIN.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFFF6C177),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Made with ❤️ by Mujtaba',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Color(0xFF908CAA)),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'This software is provided \'as-is\' without warranty of any kind. The author is not liable for any damage.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Color(0xFF6E6A86)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: FloatingActionButton.extended(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          highlightElevation: 0,
-          splashColor: Colors.amber.withOpacity(0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: Colors.amber.withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          onPressed: () {
-            showDialog(
-              context: context,
-              barrierColor: Colors.black.withOpacity(0.7),
-              builder: (context) => newsPopup(context),
-            );
-          },
-          icon: Icon(
-            Icons.notifications_none_rounded,
-            color: Colors.amber.withOpacity(0.9),
-            size: 18,
-          ),
-          label: Text(
-            'What\'s New',
-            style: TextStyle(
-              color: Colors.amber.withOpacity(0.9),
-              fontSize: 14,
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
