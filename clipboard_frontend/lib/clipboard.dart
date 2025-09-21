@@ -26,6 +26,7 @@ class _ClipboardState extends State<Clipboard> {
 
   @override
   Widget build(BuildContext context) {
+    // The Scaffold will pick up the background color from the ThemeData
     return Scaffold(
       body: Stack(
         children: [
@@ -38,7 +39,8 @@ class _ClipboardState extends State<Clipboard> {
               height: 240,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF312F4F).withOpacity(0.5),
+                // Using the new darker decorative color
+                color: const Color(0xFF2A2845).withOpacity(0.5),
               ),
             ),
           ),
@@ -147,9 +149,11 @@ class _ClipboardState extends State<Clipboard> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF232136),
+            // Using the new darker UI element color
+            color: const Color(0xFF1E1C2F),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF3E3A59)),
+            // Using the new darker border color
+            border: Border.all(color: const Color(0xFF35324F)),
           ),
           child: Text(
             'PIN: ${widget.pin}',
@@ -164,18 +168,20 @@ class _ClipboardState extends State<Clipboard> {
         PopupMenuButton<String>(
           onSelected: (value) {
             if (value == 'contact') {
-              window.open('https://gameidea.org/about/', '_blank');
+              html.window.open('https://gameidea.org/about/', '_blank');
             } else if (value == 'home') {
               Navigator.pop(context);
             } else if (value == 'download_all') {
               _downloadAllContent();
             }
           },
-          color: const Color(0xFF232136),
+          // Using the new darker UI element color
+          color: const Color(0xFF1E1C2F),
           icon: const Icon(Pixel.morevertical, color: Color(0xFFE0DEF4)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
-            side: const BorderSide(color: Color(0xFF3E3A59)),
+            // Using the new darker border color
+            side: const BorderSide(color: Color(0xFF35324F)),
           ),
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
@@ -214,10 +220,12 @@ class _ClipboardState extends State<Clipboard> {
       onTap: () => _showAddNewItemDialog(context),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF232136).withOpacity(0.5),
+          // Using the new darker UI element color with opacity
+          color: const Color(0xFF1E1C2F).withOpacity(0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF3E3A59),
+            // Using the new darker border color
+            color: const Color(0xFF35324F),
             width: 2.0,
           ),
         ),
@@ -239,9 +247,11 @@ class _ClipboardState extends State<Clipboard> {
   Widget _buildFileCard(int index, String fileName, Function onDelete) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF232136),
+        // Using the new darker UI element color
+        color: const Color(0xFF1E1C2F),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF3E3A59)),
+        // Using the new darker border color
+        border: Border.all(color: const Color(0xFF35324F)),
       ),
       child: Stack(
         children: [
@@ -280,17 +290,19 @@ class _ClipboardState extends State<Clipboard> {
             left: 0,
             right: 0,
             child: Material(
-              color: const Color(0xFF3E3A59).withOpacity(0.5),
+              // Using a darker version of the border color for the download bar
+              color: const Color(0xFF35324F).withOpacity(0.5),
               borderRadius:
                   const BorderRadius.vertical(bottom: Radius.circular(12)),
               child: InkWell(
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('Downloading $fileName...'),
-                    backgroundColor: const Color(0xFF232136),
+                    // Using the new darker UI element color
+                    backgroundColor: const Color(0xFF1E1C2F),
                     behavior: SnackBarBehavior.floating,
                   ));
-                  window.open(
+                  html.window.open(
                       makeUrl('/files/${widget.pin}/$fileName'), '_blank');
                 },
                 borderRadius:
@@ -320,9 +332,11 @@ class _ClipboardState extends State<Clipboard> {
       Function onDelete, Function onSave) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF232136),
+        // Using the new darker UI element color
+        color: const Color(0xFF1E1C2F),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF3E3A59)),
+        // Using the new darker border color
+        border: Border.all(color: const Color(0xFF35324F)),
       ),
       child: Column(
         children: [
@@ -341,14 +355,16 @@ class _ClipboardState extends State<Clipboard> {
                   contentPadding: const EdgeInsets.all(12),
                   border: InputBorder.none,
                   filled: true,
-                  fillColor: const Color(0xFF191724),
+                  // Using the new darker background color
+                  fillColor: const Color(0xFF12101C),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: Colors.transparent),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF3E3A59)),
+                    // Using the new darker border color
+                    borderSide: const BorderSide(color: Color(0xFF35324F)),
                   ),
                 ),
               ),
@@ -358,7 +374,8 @@ class _ClipboardState extends State<Clipboard> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFF191724).withOpacity(0.7),
+              // Using the new darker background color with opacity
+              color: const Color(0xFF12101C).withOpacity(0.7),
               borderRadius:
                   const BorderRadius.vertical(bottom: Radius.circular(12)),
             ),
@@ -432,10 +449,12 @@ class _ClipboardState extends State<Clipboard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF232136),
+          // Using the new darker UI element color
+          backgroundColor: const Color(0xFF1E1C2F),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
-            side: const BorderSide(color: Color(0xFF3E3A59)),
+            // Using the new darker border color
+            side: const BorderSide(color: Color(0xFF35324F)),
           ),
           title: const Text(
             'Add New Item',
@@ -447,9 +466,10 @@ class _ClipboardState extends State<Clipboard> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ElevatedButton.icon(
-                icon: const Icon(Icons.upload_file, color: Color(0xFF191724)),
+                // Matching button text to the new dark background
+                icon: const Icon(Icons.upload_file, color: Color(0xFF12101C)),
                 label: const Text('Upload File',
-                    style: TextStyle(color: Color(0xFF191724))),
+                    style: TextStyle(color: Color(0xFF12101C))),
                 onPressed: () {
                   Navigator.of(context).pop();
                   _uploadFileToServer();
@@ -464,9 +484,10 @@ class _ClipboardState extends State<Clipboard> {
               ),
               const SizedBox(height: 12),
               ElevatedButton.icon(
-                icon: const Icon(Icons.paste, color: Color(0xFF191724)),
+                // Matching button text to the new dark background
+                icon: const Icon(Icons.paste, color: Color(0xFF12101C)),
                 label: const Text('Paste from Clipboard',
-                    style: TextStyle(color: Color(0xFF191724))),
+                    style: TextStyle(color: Color(0xFF12101C))),
                 onPressed: () {
                   Navigator.of(context).pop();
                   _uploadTextToServer();
@@ -613,7 +634,8 @@ class _ClipboardState extends State<Clipboard> {
           barrierDismissible: false,
           builder: (context) {
             return AlertDialog(
-              backgroundColor: const Color(0xFF232136),
+              // Using the new darker UI element color
+              backgroundColor: const Color(0xFF1E1C2F),
               title: const Text('Uploading files...',
                   style: TextStyle(color: Color(0xFFE0DEF4))),
               content: Column(
@@ -672,8 +694,8 @@ class _ClipboardState extends State<Clipboard> {
     try {
       for (var item in widget.data) {
         if (item.containsKey('file')) {
-          window.open(
-              makeUrl('/files/${widget.pin}/${item['file']}'), '_blank');
+          html.window
+              .open(makeUrl('/files/${widget.pin}/${item['file']}'), '_blank');
           await Future.delayed(const Duration(milliseconds: 500));
         } else if (item.containsKey('text')) {
           _downloadTextAsFile(
@@ -699,11 +721,11 @@ class _ClipboardState extends State<Clipboard> {
   }
 
   void _downloadTextAsFile(String text, String filename) {
-    final blob = Blob([text], 'text/plain', 'native');
-    final url = Url.createObjectUrlFromBlob(blob);
-    final anchor = AnchorElement(href: url)
+    final blob = html.Blob([text], 'text/plain', 'native');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.AnchorElement(href: url)
       ..setAttribute('download', filename)
       ..click();
-    Url.revokeObjectUrl(url);
+    html.Url.revokeObjectUrl(url);
   }
 }

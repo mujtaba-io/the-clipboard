@@ -18,8 +18,10 @@ class ClipboardApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Segoe UI',
-        scaffoldBackgroundColor: const Color(0xFF191724),
+        // A darker version of your original background
+        scaffoldBackgroundColor: const Color(0xFF12101C),
         textTheme: const TextTheme(
+          // Kept the text color the same for readability
           bodyMedium: TextStyle(color: Color(0xFFDAD8D4)),
         ),
       ),
@@ -68,7 +70,8 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
               height: 240,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF312F4F).withOpacity(0.5),
+                // Darkened the decorative circle slightly
+                color: const Color(0xFF2A2845).withOpacity(0.5),
               ),
             ),
           ),
@@ -80,6 +83,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
               height: 360,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                // Kept your accent color the same
                 color: const Color(0xFFEB6F92).withOpacity(0.25),
               ),
             ),
@@ -98,7 +102,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                     const Icon(
                       Pixel.heart,
                       size: 64,
-                      color: Color(0xFFEB6F92),
+                      color: Color(0xFFEB6F92), // Kept accent color
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -107,7 +111,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                       style: GoogleFonts.pressStart2p(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFE0DEF4),
+                        color: const Color(0xFFE0DEF4), // Kept text color
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -116,7 +120,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Color(0xFF908CAA),
+                        color: Color(0xFF908CAA), // Kept text color
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -135,25 +139,27 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                               hintStyle:
                                   const TextStyle(color: Color(0xFF6E6A86)),
                               filled: true,
-                              fillColor: const Color(0xFF232136),
+                              // Darkened the input field background
+                              fillColor: const Color(0xFF1E1C2F),
                               errorStyle: const TextStyle(
                                   height: 0.01, color: Colors.transparent),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
+                                // Darkened the border
                                 borderSide: const BorderSide(
-                                  color: Color(0xFF3E3A59),
+                                  color: Color(0xFF35324F),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                  color: Color(0xFF3E3A59),
+                                  color: Color(0xFF35324F),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                  color: Color(0xFFEB6F92),
+                                  color: Color(0xFFEB6F92), // Kept accent color
                                   width: 2.0,
                                 ),
                               ),
@@ -182,6 +188,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                                     child: Text(
                                       _errorMessage,
                                       style: const TextStyle(
+                                        // Kept your warning color
                                         color: Color(0xFFF6C177),
                                         fontSize: 13,
                                       ),
@@ -194,7 +201,8 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: const Color(0xFFEB6F92),
+                              backgroundColor:
+                                  const Color(0xFFEB6F92), // Kept accent color
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -210,7 +218,8 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                             child: const Text(
                               'Submit PIN',
                               style: TextStyle(
-                                color: Color(0xFF191724),
+                                // Matched button text to the new dark background
+                                color: Color(0xFF12101C),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -236,7 +245,8 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                         children: [
                           Icon(
                             Icons.warning_amber_rounded,
-                            color: const Color(0xFFF6C177),
+                            color:
+                                const Color(0xFFF6C177), // Kept warning color
                             size: 18,
                           ),
                           const SizedBox(width: 8),
@@ -245,7 +255,7 @@ class _ClipboardHomePageState extends State<ClipboardHomePage> {
                               "Don't use for sensitive data, as it's publicly accessible with a PIN.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Color(0xFFF6C177),
+                                color: Color(0xFFF6C177), // Kept warning color
                                 fontSize: 12,
                               ),
                             ),

@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
 const String DOMAIN =
-    'http://127.0.0.1:7860'; //'https://mujtaba-io-clipboard.hf.space'; // do NOT include trailing slash
+    'https://mujtaba-io-clipboard2.hf.space'; // do NOT include trailing slash
 
 Dio dio = Dio();
 
